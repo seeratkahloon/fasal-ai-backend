@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "FasalAI API Tests",
+    "description": "Test all FasalAI backend routes in Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" },
+    { "key": "token",    "value": "paste_your_jwt_token_here_after_login" }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/",
+        "description": "Check if server is running"
+      }
+    },
+    {
+      "name": "2. Register User",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/auth/register",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ahmad Ali\",\n  \"email\": \"ahmad@test.com\",\n  \"password\": \"123456\",\n  \"cropType\": \"Wheat\",\n  \"location\": \"Sargodha\"\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Login User",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/auth/login",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"ahmad@test.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "description": "Copy the token from response and paste in the collection variable 'token'"
+      }
+    },
+    {
+      "name": "4. Get My Profile",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/auth/me",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "5. Get My Reports",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/reports",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    },
+    {
+      "name": "6. Send Chat Message",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/chat",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"How do I treat leaf rust in wheat?\",\n  \"history\": []\n}"
+        }
+      }
+    },
+    {
+      "name": "7. Get Weather",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/weather?city=Sargodha",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+      }
+    }
+  ]
+}
