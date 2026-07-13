@@ -3,9 +3,9 @@ const axios      = require("axios");
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
-  cloud_name: "sedl3wpi",
-  api_key:    "925714316217186",
-  api_secret: "xqfGvb-1QbO7vwvSYKyN40gbUJI",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const detectDisease = async (req, res) => {
@@ -29,33 +29,29 @@ const detectDisease = async (req, res) => {
     console.log("✅ Cloudinary upload success:", imageUrl);
 
     // Call AI service
-    console.log("🤖 Calling AI service...");
+    const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+    console.log(`🤖 Calling AI service at ${aiServiceUrl}...`);
+
     let aiResult;
     try {
       const aiResponse = await axios.post(
-        "http://localhost:8000/detect",
+        `${aiServiceUrl}/detect`,
         { image_url: imageUrl, crop_type: cropType },
         { timeout: 30000 }
       );
+
+      if (!aiResponse.data.success) {
+        throw new Error(aiResponse.data.error || "AI service returned an error");
+      }
+
       aiResult = aiResponse.data;
       console.log("✅ AI result:", aiResult);
     } catch (aiError) {
-      console.log("⚠️ AI service error, using fallback:", aiError.message);
-      aiResult = {
-        disease:    "Leaf Rust",
-        confidence: 87,
-        severity:   "High",
-        treatment:  [
-          "Apply Mancozeb fungicide every 10-14 days.",
-          "Remove infected leaves immediately.",
-          "Avoid overhead irrigation.",
-        ],
-        prevention: [
-          "Use resistant seed varieties.",
-          "Rotate crops annually.",
-          "Monitor weekly.",
-        ],
-      };
+      console.error("❌ AI service call failed:", aiError.message);
+      return res.status(502).json({
+        success: false,
+        message: "Could not analyze the image right now. Please try again in a moment.",
+      });
     }
 
     // Save to MongoDB
