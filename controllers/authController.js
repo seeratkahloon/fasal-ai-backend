@@ -3,7 +3,7 @@ const User = require("../models/User");
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || "fasal_ai_secret_key_2024", {
-    expiresIn: "7d",
+    expiresIn: "90d",
   });
 };
 
