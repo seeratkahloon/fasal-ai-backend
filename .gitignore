@@ -1,2 +1,10 @@
 .env
-node_modules/
+node_modules/.claude/
+.codex/
+.claude.json
+.codex.json
+.bonto/
+.webslop/
+.mcp.json
+AGENTS.md
+.claude/
